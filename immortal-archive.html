@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>immortal archive</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --deep: #03281f;
+    --ocean: #04342C;
+    --mid: #085041;
+    --teal: #0F6E56;
+    --bright: #1D9E75;
+    --glow: #5DCAA5;
+    --soft: #9FE1CB;
+    --mist: #E1F5EE;
+    --white: #f0faf6;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--deep);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 400;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--deep); }
+  ::-webkit-scrollbar-thumb { background: var(--teal); border-radius: 2px; }
+
+  /* TOPBAR */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 28px;
+    border-bottom: 0.5px solid var(--teal);
+    position: sticky; top: 0; z-index: 100;
+    background: var(--deep);
+  }
+  .logo { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .logo-text { font-size: 14px; font-weight: 500; color: var(--soft); letter-spacing: 0.05em; }
+  .topbar-right { display: flex; align-items: center; gap: 10px; }
+  .privacy-pill {
+    display: flex; align-items: center; gap: 5px;
+    background: var(--mid); border-radius: 20px; padding: 4px 12px;
+  }
+  .privacy-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--glow);
+    animation: pulse-dot 2.5s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+  .privacy-label { font-size: 11px; color: var(--glow); font-weight: 500; }
+  .donate-btn {
+    font-size: 12px; color: var(--soft); border: 0.5px solid var(--bright);
+    border-radius: 20px; padding: 5px 14px; cursor: pointer; background: transparent;
+    font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .donate-btn:hover { background: var(--mid); color: var(--mist); }
+
+  /* MAIN LAYOUT */
+  .layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    min-height: calc(100vh - 53px);
+  }
+
+  /* SIDEBAR */
+  .sidebar {
+    border-right: 0.5px solid var(--teal);
+    display: flex; flex-direction: column;
+    padding: 24px 16px;
+    gap: 6px;
+  }
+  .sidebar-heading {
+    font-size: 10px; font-weight: 500; color: var(--bright);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    padding: 0 8px 8px; margin-bottom: 2px;
+  }
+  .entry-row {
+    padding: 10px 10px; border-radius: 8px; cursor: pointer;
+    border: 0.5px solid transparent; transition: all 0.15s;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+  .entry-row:hover { background: var(--mid); }
+  .entry-row.active { background: var(--mid); border-color: var(--bright); }
+  .entry-row-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--glow); flex-shrink: 0; margin-top: 6px;
+  }
+  .entry-row-dot.old { background: var(--teal); }
+  .entry-row-info { flex: 1; min-width: 0; }
+  .entry-row-title {
+    font-size: 12px; font-weight: 500; color: var(--soft);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .entry-row-meta { font-size: 11px; color: var(--bright); margin-top: 2px; }
+  .sidebar-footer { margin-top: auto; display: flex; flex-direction: column; gap: 8px; }
+  .threads-btn {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 12px; border-radius: 8px;
+    border: 0.5px solid var(--bright); background: transparent;
+    color: var(--soft); font-size: 12px; font-weight: 500;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .threads-btn:hover { background: var(--mid); }
+  .storage-bar-wrap { padding: 0 2px; }
+  .storage-label { font-size: 10px; color: var(--teal); margin-bottom: 4px; display: flex; justify-content: space-between; }
+  .storage-bar { height: 2px; background: var(--mid); border-radius: 2px; overflow: hidden; }
+  .storage-fill { height: 100%; background: var(--glow); border-radius: 2px; transition: width 0.4s; }
+
+  /* MAIN CONTENT */
+  .main { display: flex; flex-direction: column; }
+
+  /* WRITE VIEW */
+  .write-view { padding: 32px 36px; flex: 1; }
+  .write-hero { text-align: center; padding: 20px 0 36px; }
+  .write-hero-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px; color: var(--mist); line-height: 1.2;
+    margin-bottom: 10px; animation: fadein 0.8s ease;
+  }
+  .write-hero-sub { font-size: 14px; color: var(--glow); line-height: 1.6; animation: fadein 1.2s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  .jelly-center { display: flex; justify-content: center; margin-bottom: 24px; animation: floatjelly 4s ease-in-out infinite; }
+  @keyframes floatjelly {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .compose-card {
+    background: var(--ocean); border: 0.5px solid var(--teal);
+    border-radius: 14px; padding: 24px; margin-bottom: 20px;
+    animation: fadein 0.6s ease;
+  }
+  .compose-label { font-size: 11px; font-weight: 500; color: var(--bright); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 14px; }
+  textarea.bloom-input {
+    width: 100%; background: transparent; border: none; outline: none;
+    font-size: 16px; font-family: 'DM Serif Display', serif;
+    font-style: italic; color: var(--mist); resize: none;
+    line-height: 1.9; min-height: 100px;
+  }
+  textarea.bloom-input::placeholder { color: var(--teal); }
+  .compose-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 16px; padding-top: 14px; border-top: 0.5px solid var(--teal);
+  }
+  .compose-hint { font-size: 11px; color: var(--teal); }
+  .preserve-btn {
+    background: var(--glow); color: var(--deep); border: none;
+    border-radius: 8px; padding: 10px 22px; font-size: 13px; font-weight: 500;
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.2s;
+  }
+  .preserve-btn:hover { background: var(--soft); }
+  .preserve-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* RESPONSE CARD */
+  .response-card {
+    background: var(--mid); border: 0.5px solid var(--bright);
+    border-radius: 14px; overflow: hidden;
+    animation: fadein 0.5s ease;
+  }
+  .response-top {
+    display: flex; align-items: center; gap: 8px;
+    padding: 12px 18px; border-bottom: 0.5px solid var(--teal);
+    background: var(--ocean);
+  }
+  .response-badge { font-size: 10px; font-weight: 500; color: var(--glow); text-transform: uppercase; letter-spacing: 0.08em; }
+  .response-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px; color: var(--mist); padding: 18px 18px 6px; line-height: 1.3;
+  }
+  .response-theme { font-size: 14px; color: var(--soft); line-height: 1.8; padding: 0 18px 16px; }
+  .response-divider { height: 0.5px; background: var(--teal); margin: 0 18px; }
+  .response-question {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic; font-size: 15px; color: var(--glow);
+    line-height: 1.7; padding: 16px 18px;
+  }
+
+  /* ENTRY VIEW */
+  .entry-view { padding: 32px 36px; flex: 1; animation: fadein 0.4s ease; }
+  .entry-back {
+    font-size: 12px; color: var(--bright); cursor: pointer;
+    margin-bottom: 24px; display: flex; align-items: center; gap: 6px;
+    background: none; border: none; font-family: 'DM Sans', sans-serif;
+    padding: 0;
+  }
+  .entry-back:hover { color: var(--glow); }
+  .entry-cycle-badge {
+    display: inline-block; font-size: 10px; font-weight: 500; color: var(--glow);
+    background: var(--mid); border-radius: 20px; padding: 3px 12px;
+    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px;
+  }
+  .entry-big-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 30px; color: var(--mist); line-height: 1.25; margin-bottom: 6px;
+  }
+  .entry-date-line { font-size: 12px; color: var(--bright); margin-bottom: 24px; }
+  .entry-original {
+    font-family: 'DM Serif Display', serif; font-style: italic;
+    font-size: 15px; color: var(--soft); line-height: 1.9;
+    padding: 16px 20px; border-left: 2px solid var(--glow);
+    background: var(--ocean); border-radius: 0 8px 8px 0;
+    margin-bottom: 28px;
+  }
+  .entry-section-label {
+    font-size: 10px; font-weight: 500; color: var(--bright);
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .entry-section-label::after { content: ''; flex: 1; height: 0.5px; background: var(--teal); }
+  .entry-theme-block {
+    background: var(--mid); border-radius: 10px; padding: 14px 16px;
+    margin-bottom: 20px; font-size: 14px; color: var(--soft); line-height: 1.8;
+  }
+  .entry-question-block {
+    border: 0.5px solid var(--bright); border-radius: 10px; padding: 14px 16px;
+    font-family: 'DM Serif Display', serif; font-style: italic;
+    font-size: 15px; color: var(--glow); line-height: 1.7;
+  }
+
+  /* THREADS VIEW */
+  .threads-view { padding: 32px 36px; flex: 1; animation: fadein 0.4s ease; }
+  .threads-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 28px; color: var(--mist); margin-bottom: 6px;
+  }
+  .threads-sub { font-size: 13px; color: var(--bright); margin-bottom: 28px; }
+  .threads-loading { font-size: 14px; color: var(--glow); font-style: italic; }
+  .thread-card {
+    background: var(--ocean); border: 0.5px solid var(--teal);
+    border-radius: 12px; padding: 18px; margin-bottom: 12px;
+  }
+  .thread-card-label { font-size: 10px; font-weight: 500; color: var(--bright); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 6px; }
+  .thread-card-title { font-family: 'DM Serif Display', serif; font-size: 18px; color: var(--mist); margin-bottom: 8px; }
+  .thread-card-body { font-size: 13px; color: var(--soft); line-height: 1.7; }
+
+  /* EMPTY STATE */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--teal); font-size: 13px; }
+
+  /* LOADING SPINNER */
+  .loading-wrap { display: flex; align-items: center; gap: 10px; padding: 16px 0; }
+  .loading-dots { display: flex; gap: 5px; }
+  .loading-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--glow);
+    animation: bounce 1.2s ease-in-out infinite;
+  }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce {
+    0%, 80%, 100% { transform: scale(0.7); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+  }
+  .loading-text { font-size: 13px; color: var(--bright); font-style: italic; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--mid); border: 0.5px solid var(--glow);
+    border-radius: 10px; padding: 12px 18px;
+    font-size: 13px; color: var(--soft);
+    transform: translateY(60px); opacity: 0;
+    transition: all 0.3s ease; z-index: 999;
+  }
+  .toast.show { transform: none; opacity: 1; }
+
+  /* LIMIT WARNING */
+  .limit-warn {
+    background: var(--ocean); border: 0.5px solid var(--bright);
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+    font-size: 13px; color: var(--soft); display: none;
+  }
+  .limit-warn.visible { display: block; }
+  .export-link { color: var(--glow); cursor: pointer; text-decoration: underline; }
+
+  /* DONATE MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(3,40,31,0.85);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 200; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+  .modal {
+    background: var(--ocean); border: 0.5px solid var(--bright);
+    border-radius: 16px; padding: 32px; max-width: 360px; width: 90%;
+    transform: translateY(20px); transition: transform 0.3s;
+    text-align: center;
+  }
+  .modal-overlay.open .modal { transform: none; }
+  .modal-title { font-family: 'DM Serif Display', serif; font-size: 24px; color: var(--mist); margin-bottom: 8px; }
+  .modal-sub { font-size: 13px; color: var(--soft); line-height: 1.7; margin-bottom: 24px; }
+  .modal-btn {
+    display: block; width: 100%; padding: 12px;
+    border-radius: 10px; font-size: 14px; font-weight: 500;
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    margin-bottom: 8px; transition: all 0.2s; border: none;
+  }
+  .modal-btn-primary { background: var(--glow); color: var(--deep); }
+  .modal-btn-primary:hover { background: var(--soft); }
+  .modal-btn-ghost { background: transparent; color: var(--bright); border: 0.5px solid var(--teal) !important; }
+  .modal-btn-ghost:hover { background: var(--mid); }
+
+  @media (max-width: 640px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { display: none; }
+    .write-view, .entry-view, .threads-view { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo" onclick="showView('write')">
+    <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+      <ellipse cx="13" cy="10" rx="8" ry="6" fill="#1D9E75" stroke="#5DCAA5" stroke-width="0.7"/>
+      <ellipse cx="13" cy="9" rx="4.5" ry="3" fill="#085041" opacity="0.45"/>
+      <path d="M7 14.5 Q6 18 7 22" stroke="#5DCAA5" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+      <path d="M10 16 Q9.5 20 10 24" stroke="#1D9E75" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+      <path d="M13 16.5 Q13 21 13 25" stroke="#5DCAA5" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M16 16 Q16.5 20 16 24" stroke="#1D9E75" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+      <path d="M19 14.5 Q20 18 19 22" stroke="#5DCAA5" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+    </svg>
+    <span class="logo-text">immortal archive</span>
+  </div>
+  <div class="topbar-right">
+    <div class="privacy-pill">
+      <div class="privacy-dot"></div>
+      <span class="privacy-label">stored only on your device</span>
+    </div>
+    <button class="donate-btn" onclick="openDonate()">support this</button>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sidebar-heading">your bloom</div>
+    <div id="sidebar-entries"></div>
+    <div class="sidebar-footer">
+      <button class="threads-btn" onclick="showThreads()">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M6 1 Q5 3.5 6 6 Q7 8.5 6 11" stroke="#9FE1CB" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+          <path d="M3 1.5 Q2 4 3 6.5 Q4 9 3 11" stroke="#5DCAA5" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+          <path d="M9 1.5 Q10 4 9 6.5 Q8 9 9 11" stroke="#5DCAA5" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+        </svg>
+        read my threads
+      </button>
+      <div class="storage-bar-wrap">
+        <div class="storage-label">
+          <span id="storage-count">0 memories</span>
+          <span id="storage-pct">0%</span>
+        </div>
+        <div class="storage-bar"><div class="storage-fill" id="storage-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- WRITE VIEW -->
+    <div id="view-write" class="write-view">
+      <div class="write-hero">
+        <div class="jelly-center">
+          <svg width="72" height="72" viewBox="0 0 72 72" fill="none">
+            <ellipse cx="36" cy="27" rx="22" ry="17" fill="#1D9E75" stroke="#5DCAA5" stroke-width="0.8"/>
+            <ellipse cx="36" cy="24" rx="12" ry="8" fill="#085041" opacity="0.4"/>
+            <ellipse cx="29" cy="24" rx="3.5" ry="3.5" fill="#5DCAA5" opacity="0.25"/>
+            <ellipse cx="43" cy="24" rx="3.5" ry="3.5" fill="#5DCAA5" opacity="0.25"/>
+            <path d="M19 40 Q17 49 19 58" stroke="#5DCAA5" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+            <path d="M25 44 Q23 53 25 62" stroke="#1D9E75" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+            <path d="M31 46 Q30 56 31 66" stroke="#5DCAA5" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M36 47 Q36 57 36 67" stroke="#9FE1CB" stroke-width="1" stroke-linecap="round" fill="none"/>
+            <path d="M41 46 Q42 56 41 66" stroke="#5DCAA5" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <path d="M47 44 Q49 53 47 62" stroke="#1D9E75" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+            <path d="M53 40 Q55 49 53 58" stroke="#5DCAA5" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+          </svg>
+        </div>
+        <div class="write-hero-title">some things are worth<br>remembering forever</div>
+        <div class="write-hero-sub" style="margin-top:8px;">a private space to preserve what keeps surfacing</div>
+      </div>
+
+      <div class="limit-warn" id="limit-warn">
+        Your bloom is getting full. <span class="export-link" onclick="exportData()">Export your memories</span> to keep them safe.
+      </div>
+
+      <div class="compose-card">
+        <div class="compose-label">what's surfacing right now</div>
+        <textarea class="bloom-input" id="bloom-input" rows="4" placeholder="A memory, a feeling, something you can't stop thinking about..."></textarea>
+        <div class="compose-footer">
+          <span class="compose-hint">stays on your device · never leaves</span>
+          <button class="preserve-btn" id="preserve-btn" onclick="preserve()">preserve it</button>
+        </div>
+      </div>
+
+      <div id="response-area"></div>
+    </div>
+
+    <!-- ENTRY VIEW -->
+    <div id="view-entry" class="entry-view" style="display:none;">
+      <button class="entry-back" onclick="showView('write')">&#8592; back to bloom</button>
+      <div id="entry-content"></div>
+    </div>
+
+    <!-- THREADS VIEW -->
+    <div id="view-threads" class="threads-view" style="display:none;">
+      <button class="entry-back" onclick="showView('write')">&#8592; back to bloom</button>
+      <div class="threads-title">your threads</div>
+      <div class="threads-sub" id="threads-sub"></div>
+      <div id="threads-content"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="modal-overlay" id="donate-modal">
+  <div class="modal">
+    <svg width="48" height="48" viewBox="0 0 48 48" fill="none" style="margin: 0 auto 16px;">
+      <ellipse cx="24" cy="18" rx="15" ry="11" fill="#1D9E75" stroke="#5DCAA5" stroke-width="0.8"/>
+      <ellipse cx="24" cy="16" rx="8" ry="5.5" fill="#085041" opacity="0.4"/>
+      <path d="M13 27 Q11 33 13 40" stroke="#5DCAA5" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+      <path d="M18 30 Q16 37 18 44" stroke="#1D9E75" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M24 31 Q24 38 24 46" stroke="#5DCAA5" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <path d="M30 30 Q32 37 30 44" stroke="#1D9E75" stroke-width="1" stroke-linecap="round" fill="none"/>
+      <path d="M35 27 Q37 33 35 40" stroke="#5DCAA5" stroke-width="1.1" stroke-linecap="round" fill="none"/>
+    </svg>
+    <div class="modal-title">keep the archive alive</div>
+    <div class="modal-sub">This app is free, private, and always will be. No accounts, no servers, no ads. If it's given you something, consider giving back.</div>
+    <button class="modal-btn modal-btn-primary" onclick="openLink('https://ko-fi.com')">support on Ko-fi</button>
+    <button class="modal-btn modal-btn-ghost" onclick="closeDonate()">maybe later</button>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'immortal_archive_entries';
+const MAX_ENTRIES = 500;
+const WARN_AT = 450;
+
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveEntries(entries) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
+  catch(e) { showToast('Storage full. Please export your memories.'); }
+}
+
+function formatDate(ts) {
+  return new Date(ts).toLocaleDateString('en-CA', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function cycleLabel(n) { return `cycle ${n}`; }
+
+function updateSidebar() {
+  const entries = getEntries();
+  const container = document.getElementById('sidebar-entries');
+  container.innerHTML = '';
+
+  if (entries.length === 0) {
+    container.innerHTML = '<div class="empty-state" style="padding: 20px 8px; text-align:left; font-size:12px; color:#0F6E56;">your first memory will appear here</div>';
+  }
+
+  entries.slice().reverse().forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'entry-row' + (i === 0 ? ' active' : '');
+    div.innerHTML = `
+      <div class="entry-row-dot ${i > 0 ? 'old' : ''}"></div>
+      <div class="entry-row-info">
+        <div class="entry-row-title">${escHtml(e.title || e.text.slice(0,40))}</div>
+        <div class="entry-row-meta">${formatDate(e.ts)} · ${cycleLabel(entries.length - i)}</div>
+      </div>`;
+    div.onclick = () => showEntry(e, entries.length - i);
+    container.appendChild(div);
+  });
+
+  const pct = Math.round((entries.length / MAX_ENTRIES) * 100);
+  document.getElementById('storage-count').textContent = `${entries.length} memories`;
+  document.getElementById('storage-pct').textContent = `${pct}%`;
+  document.getElementById('storage-fill').style.width = pct + '%';
+
+  const warn = document.getElementById('limit-warn');
+  warn.classList.toggle('visible', entries.length >= WARN_AT);
+}
+
+function showView(v) {
+  ['write','entry','threads'].forEach(name => {
+    document.getElementById('view-' + name).style.display = name === v ? '' : 'none';
+  });
+  document.querySelectorAll('.entry-row').forEach((el, i) => {
+    el.classList.toggle('active', i === 0 && v === 'write');
+  });
+}
+
+function showEntry(entry, cycle) {
+  showView('entry');
+  document.getElementById('entry-content').innerHTML = `
+    <div class="entry-cycle-badge">${cycleLabel(cycle)}</div>
+    <div class="entry-big-title">${escHtml(entry.title || 'untitled memory')}</div>
+    <div class="entry-date-line">${formatDate(entry.ts)} · preserved forever</div>
+    <div class="entry-original">${escHtml(entry.text)}</div>
+    ${entry.theme ? `
+      <div class="entry-section-label">what the archive saw</div>
+      <div class="entry-theme-block">${escHtml(entry.theme)}</div>
+      <div class="entry-section-label">what floated back up</div>
+      <div class="entry-question-block">${escHtml(entry.question)}</div>
+    ` : ''}
+  `;
+}
+
+async function preserve() {
+  const input = document.getElementById('bloom-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const entries = getEntries();
+  if (entries.length >= MAX_ENTRIES) {
+    showToast('Bloom is full. Export first to make space.');
+    return;
+  }
+
+  const btn = document.getElementById('preserve-btn');
+  btn.disabled = true;
+  btn.textContent = 'preserving...';
+
+  const responseArea = document.getElementById('response-area');
+  responseArea.innerHTML = `
+    <div class="loading-wrap">
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+      <span class="loading-text">the archive is listening...</span>
+    </div>`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are the Immortal Archive — inspired by Turritopsis dohrnii, the only creature that regenerates itself endlessly. 
+When someone shares a memory, thought, or feeling, respond ONLY with valid JSON (no markdown, no backticks) in this exact format:
+{
+  "title": "4-6 word evocative title for this memory",
+  "theme": "2-3 sentence reflection on the deeper pattern or meaning. Be perceptive, poetic, not therapeutic.",
+  "question": "One single question that invites them deeper. Make it a little haunting. Avoid yes/no questions."
+}
+Never be generic. Never use therapy-speak. Be like a very wise, slightly mystical friend.`,
+        messages: [{ role: 'user', content: text }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content?.map(b => b.text || '').join('') || '{}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    const entry = {
+      id: Date.now(),
+      ts: Date.now(),
+      text,
+      title: parsed.title || text.slice(0, 40),
+      theme: parsed.theme || '',
+      question: parsed.question || ''
+    };
+
+    const all = getEntries();
+    all.push(entry);
+    saveEntries(all);
+    updateSidebar();
+
+    const cycle = all.length;
+    responseArea.innerHTML = `
+      <div class="response-card">
+        <div class="response-top">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <ellipse cx="8" cy="5.5" rx="5.5" ry="4" fill="#1D9E75" stroke="#5DCAA5" stroke-width="0.6"/>
+            <path d="M3.5 8.5 Q3 11 3.5 14" stroke="#5DCAA5" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+            <path d="M6 9.5 Q5.5 12.5 6 15.5" stroke="#1D9E75" stroke-width="0.7" stroke-linecap="round" fill="none"/>
+            <path d="M8 10 Q8 13 8 16" stroke="#5DCAA5" stroke-width="0.9" stroke-linecap="round" fill="none"/>
+            <path d="M10 9.5 Q10.5 12.5 10 15.5" stroke="#1D9E75" stroke-width="0.7" stroke-linecap="round" fill="none"/>
+            <path d="M12.5 8.5 Q13 11 12.5 14" stroke="#5DCAA5" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+          </svg>
+          <span class="response-badge">the archive reflects · ${cycleLabel(cycle)}</span>
+        </div>
+        <div class="response-title">${escHtml(entry.title)}</div>
+        <div class="response-theme">${escHtml(entry.theme)}</div>
+        <div class="response-divider"></div>
+        <div class="response-question">${escHtml(entry.question)}</div>
+      </div>`;
+
+    input.value = '';
+    showToast('preserved forever');
+
+  } catch(err) {
+    responseArea.innerHTML = `<div style="color:#5DCAA5;font-size:13px;padding:12px 0;">something drifted away — try again</div>`;
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'preserve it';
+}
+
+async function showThreads() {
+  showView('threads');
+  const entries = getEntries();
+  const sub = document.getElementById('threads-sub');
+  const content = document.getElementById('threads-content');
+
+  if (entries.length < 2) {
+    sub.textContent = 'preserve a few more memories to find your patterns';
+    content.innerHTML = '';
+    return;
+  }
+
+  sub.textContent = `across ${entries.length} ${entries.length === 1 ? 'memory' : 'memories'}, the archive finds these threads`;
+  content.innerHTML = `
+    <div class="loading-wrap">
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+      <span class="loading-text">reading your threads...</span>
+    </div>`;
+
+  const summary = entries.map((e, i) =>
+    `Memory ${i+1}: "${e.title}" — ${e.text.slice(0, 120)}`
+  ).join('\n\n');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: `You are the Immortal Archive. Analyze these memories and find 3 recurring themes or patterns. 
+Respond ONLY with valid JSON (no markdown, no backticks):
+{
+  "threads": [
+    { "label": "short pattern name", "title": "evocative 5-7 word title", "insight": "2-3 sentences on what keeps returning and why it matters" },
+    { "label": "short pattern name", "title": "evocative 5-7 word title", "insight": "2-3 sentences on what keeps returning and why it matters" },
+    { "label": "short pattern name", "title": "evocative 5-7 word title", "insight": "2-3 sentences on what keeps returning and why it matters" }
+  ]
+}
+Be perceptive and poetic. Never generic.`,
+        messages: [{ role: 'user', content: `Here are my memories:\n\n${summary}` }]
+      })
+    });
+
+    const data = await res.json();
+    const raw = data.content?.map(b => b.text || '').join('') || '{}';
+    const clean = raw.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    content.innerHTML = parsed.threads.map(t => `
+      <div class="thread-card">
+        <div class="thread-card-label">${escHtml(t.label)}</div>
+        <div class="thread-card-title">${escHtml(t.title)}</div>
+        <div class="thread-card-body">${escHtml(t.insight)}</div>
+      </div>`).join('');
+
+  } catch(e) {
+    content.innerHTML = `<div style="color:#5DCAA5;font-size:13px;">something drifted — try again</div>`;
+  }
+}
+
+function exportData() {
+  const entries = getEntries();
+  const blob = new Blob([JSON.stringify(entries, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'immortal-archive-export.json';
+  a.click();
+  showToast('exported successfully');
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+function openDonate() { document.getElementById('donate-modal').classList.add('open'); }
+function closeDonate() { document.getElementById('donate-modal').classList.remove('open'); }
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+document.getElementById('donate-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeDonate();
+});
+
+document.getElementById('bloom-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) preserve();
+});
+
+updateSidebar();
+</script>
+</body>
+</html>
